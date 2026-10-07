@@ -114,7 +114,7 @@ const Page = async ({
           <p className="links">
             <a href="https://docs.daily.dev/plugin-marketplace/">Plugin marketplace docs</a>
             <a href="https://docs.daily.dev/public-api/">Public API docs</a>
-            <a href="https://github.com/capJavert/daily-oauth-hello-world-app">Source on GitHub</a>
+            <a href="https://github.com/dailydotdev/daily-oauth-hello-world-app">Source on GitHub</a>
           </p>
         </header>
         {error && <div className="error">{error}</div>}
@@ -185,7 +185,7 @@ const Page = async ({
         <p className="links">
           <a href="https://docs.daily.dev/plugin-marketplace/">Plugin marketplace docs</a>
           <a href="https://docs.daily.dev/public-api/">Public API docs</a>
-          <a href="https://github.com/capJavert/daily-oauth-hello-world-app">Source on GitHub</a>
+          <a href="https://github.com/dailydotdev/daily-oauth-hello-world-app">Source on GitHub</a>
         </p>
       </header>
       {error && <div className="error">{error}</div>}
