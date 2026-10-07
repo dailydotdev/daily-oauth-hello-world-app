@@ -1,0 +1,33 @@
+{
+  "name": "daily-oauth-hello-world-app",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "vite dev --port 3005",
+    "build": "vite build",
+    "start": "vite preview --port 3005",
+    "deploy": "vinext-cloudflare deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vinext/cloudflare": "^1.0.1",
+    "jose": "^6.2.12",
+    "next": "16.3.7",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-server-dom-webpack": "^19.3.0",
+    "vinext": "^1.0.1"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "2.0.0-beta.sha-52b0dc0e9",
+    "@types/node": "^24",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-rsc": "^0.5.36",
+    "cf": "1.0.0-beta.13",
+    "typescript": "^5.9",
+    "vite": "8.3.0"
+  },
+  "type": "module"
+}

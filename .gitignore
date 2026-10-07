@@ -1,0 +1,10 @@
+node_modules
+.next
+next-env.d.ts
+*.tsbuildinfo
+/dist/
+.vinext/
+.cloudflare/
+.env*
+!.env.example
+.dev.vars*
