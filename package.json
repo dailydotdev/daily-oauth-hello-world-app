@@ -29,5 +29,9 @@
     "typescript": "^5.9",
     "vite": "8.3.0"
   },
-  "type": "module"
+  "type": "module",
+  "volta": {
+    "node": "24.18.0"
+  },
+  "packageManager": "pnpm@10.29.3"
 }
