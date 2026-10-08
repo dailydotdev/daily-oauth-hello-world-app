@@ -1,10 +1,11 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { cookieNames, getConfig } from '@/lib/config';
+import { errorUrl, type ErrorCode } from '@/lib/errors';
 import { requestToken, setTokenCookies } from '@/lib/oauth';
 
-const redirectWithError = (appUrl: string, message: string): NextResponse =>
-  NextResponse.redirect(`${appUrl}/?error=${encodeURIComponent(message)}`);
+const redirectWithError = (appUrl: string, code: ErrorCode): NextResponse =>
+  NextResponse.redirect(errorUrl(appUrl, code));
 
 export const GET = async (request: NextRequest): Promise<NextResponse> => {
   const config = getConfig();
@@ -12,9 +13,14 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
   const error = params.get('error');
 
   if (error) {
+    console.error(
+      'Authorization failed',
+      error,
+      params.get('error_description'),
+    );
     return redirectWithError(
       config.appUrl,
-      `${error}${params.get('error_description') ? `: ${params.get('error_description')}` : ''}`,
+      error === 'access_denied' ? 'access_denied' : 'authorization_failed',
     );
   }
 
@@ -24,7 +30,7 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
   const verifier = request.cookies.get(cookieNames.verifier)?.value;
 
   if (!code || !state || state !== expectedState || !verifier) {
-    return redirectWithError(config.appUrl, 'Invalid state or missing code');
+    return redirectWithError(config.appUrl, 'invalid_state');
   }
 
   try {
@@ -41,6 +47,7 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
     response.cookies.delete(cookieNames.verifier);
     return response;
   } catch (err) {
-    return redirectWithError(config.appUrl, (err as Error).message);
+    console.error('Token exchange failed', err);
+    return redirectWithError(config.appUrl, 'token_exchange_failed');
   }
 };

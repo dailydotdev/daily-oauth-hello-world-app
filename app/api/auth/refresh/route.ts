@@ -1,7 +1,14 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { cookieNames, getConfig } from '@/lib/config';
-import { clearAllCookies, requestToken, setTokenCookies } from '@/lib/oauth';
+import { errorUrl } from '@/lib/errors';
+import {
+  clearAllCookies,
+  isAccessTokenExpiring,
+  isSameOrigin,
+  requestToken,
+  setTokenCookies,
+} from '@/lib/oauth';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +24,7 @@ const refresh = async (
 
   if (!refreshToken) {
     const response = NextResponse.redirect(
-      `${config.appUrl}/?error=${encodeURIComponent('Your session expired, sign in again')}`,
+      errorUrl(config.appUrl, 'session_expired'),
       303,
     );
     clearAllCookies(response);
@@ -33,8 +40,9 @@ const refresh = async (
     setTokenCookies(response, tokens);
     return response;
   } catch (err) {
+    console.error('Token refresh failed', err);
     const response = NextResponse.redirect(
-      `${config.appUrl}/?error=${encodeURIComponent((err as Error).message)}`,
+      errorUrl(config.appUrl, 'refresh_failed'),
       303,
     );
     clearAllCookies(response);
@@ -42,8 +50,22 @@ const refresh = async (
   }
 };
 
-export const GET = (request: NextRequest): Promise<NextResponse> =>
-  refresh(request, safeNext(request.nextUrl.searchParams.get('next')));
+export const GET = (request: NextRequest): Promise<NextResponse> => {
+  const next = safeNext(request.nextUrl.searchParams.get('next'));
+  const expiresAt = Number(
+    request.cookies.get(cookieNames.expiresAt)?.value ?? 0,
+  );
+  if (!isAccessTokenExpiring(expiresAt)) {
+    return Promise.resolve(
+      NextResponse.redirect(`${getConfig().appUrl}${next}`, 303),
+    );
+  }
+  return refresh(request, next);
+};
 
-export const POST = (request: NextRequest): Promise<NextResponse> =>
-  refresh(request, '/?refreshed=1');
+export const POST = (request: NextRequest): Promise<NextResponse> => {
+  if (!isSameOrigin(request)) {
+    return Promise.resolve(new NextResponse('Forbidden', { status: 403 }));
+  }
+  return refresh(request, '/?refreshed=1');
+};

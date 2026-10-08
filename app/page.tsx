@@ -1,7 +1,12 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cookieNames, getConfig } from '@/lib/config';
-import { decodeJwtPayload, verifyIdToken } from '@/lib/oauth';
+import { errorMessage } from '@/lib/errors';
+import {
+  decodeJwtPayload,
+  isAccessTokenExpiring,
+  verifyIdToken,
+} from '@/lib/oauth';
 
 type Profile = {
   id: string;
@@ -94,6 +99,7 @@ const Page = async ({
   searchParams: Promise<Record<string, string | undefined>>;
 }) => {
   const { error, refreshed } = await searchParams;
+  const errorText = errorMessage(error);
   const config = getConfig();
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(cookieNames.accessToken)?.value;
@@ -117,7 +123,7 @@ const Page = async ({
             <a href="https://github.com/dailydotdev/daily-oauth-hello-world-app">Source on GitHub</a>
           </p>
         </header>
-        {error && <div className="error">{error}</div>}
+        {errorText && <div className="error">{errorText}</div>}
         <a className="signin" href="/api/auth/login">
           <img src="/sign-in-with-daily-dev.png" alt="Sign in with daily.dev" />
         </a>
@@ -159,7 +165,7 @@ const Page = async ({
     );
   }
 
-  if (hasRefreshToken && expiresAt && expiresAt - 30_000 < Date.now()) {
+  if (hasRefreshToken && isAccessTokenExpiring(expiresAt)) {
     redirect('/api/auth/refresh?next=/');
   }
 
@@ -188,7 +194,7 @@ const Page = async ({
           <a href="https://github.com/dailydotdev/daily-oauth-hello-world-app">Source on GitHub</a>
         </p>
       </header>
-      {error && <div className="error">{error}</div>}
+      {errorText && <div className="error">{errorText}</div>}
       {refreshed && <div className="success">Tokens refreshed</div>}
 
       <div className="card">

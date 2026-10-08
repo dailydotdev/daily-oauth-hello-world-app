@@ -32,6 +32,7 @@ export const getConfig = () => {
     redirectUri: `${appUrl}/api/auth/callback`,
     authorizeUrl: `${apiUrl}/auth/oauth2/authorize`,
     tokenUrl: `${apiUrl}/auth/oauth2/token`,
+    revokeUrl: `${apiUrl}/auth/oauth2/revoke`,
     userinfoUrl: `${apiUrl}/auth/oauth2/userinfo`,
     issuer: `${apiUrl}/auth`,
     jwksUrl: `${apiUrl}/auth/jwks`,
